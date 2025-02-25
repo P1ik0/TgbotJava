@@ -1,5 +1,6 @@
 package org.example.tgbot.Bot;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.BotSession;
@@ -12,8 +13,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+@Component
 public class MyAmazingBot implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
-   private final TelegramClient telegramClient;
+
+    private final TelegramClient telegramClient;
 
     public MyAmazingBot() {
         telegramClient = new OkHttpTelegramClient(getBotToken());
@@ -21,7 +24,7 @@ public class MyAmazingBot implements SpringLongPollingBot, LongPollingSingleThre
 
     @Override
     public String getBotToken() {
-        return "TOKEN";
+        return "7844698247:AAH3lg1btz4inyHA0mribjTmQErFGvTLkog";
     }
 
     @Override
@@ -31,6 +34,27 @@ public class MyAmazingBot implements SpringLongPollingBot, LongPollingSingleThre
 
     @Override
     public void consume(Update update) {
-        // TODO
+        // We check if the update has a message and the message has text
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            // Set variables
+            String message_text = update.getMessage().getText();
+            long chat_id = update.getMessage().getChatId();
+
+            SendMessage message = SendMessage // Create a message object
+                    .builder()
+                    .chatId(chat_id)
+                    .text(message_text)
+                    .build();
+            try {
+                telegramClient.execute(message); // Sending our message object to user
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @AfterBotRegistration
+    public void afterRegistration(BotSession botSession) {
+        System.out.println("Registered bot running state is: " + botSession.isRunning());
     }
 }
